@@ -32,33 +32,7 @@ namespace StudentExercisesMVC.Controllers
         // GET: Student
         public ActionResult Index()
         {
-            var students = new List<Student>();
-            using (SqlConnection conn = Connection)
-            {
-                conn.Open();
-                using (SqlCommand cmd = conn.CreateCommand())
-                {
-                    cmd.CommandText = @"
-                                      SELECT Id, FirstName, LastName, SlackHandle, CohortId
-                                      FROM Student
-                                      ";
-
-                    SqlDataReader reader = cmd.ExecuteReader();
-
-                    while (reader.Read())
-                    {
-                        students.Add(new Student()
-                        {
-                            StudentId = reader.GetInt32(reader.GetOrdinal("Id")),
-                            FirstName = reader.GetString(reader.GetOrdinal("FirstName")),
-                            LastName = reader.GetString(reader.GetOrdinal("LastName")),
-                            SlackHandle = reader.GetString(reader.GetOrdinal("SlackHandle")),
-                            CohortId = reader.GetInt32(reader.GetOrdinal("CohortId"))
-                        });
-                    }
-                    reader.Close();
-                }
-            }
+            var students = GetAllStudents();
 
             return View(students);
         }
@@ -174,13 +148,13 @@ namespace StudentExercisesMVC.Controllers
                     using (SqlCommand cmd = conn.CreateCommand())
                     {
                         cmd.CommandText = @"
-                                      UPDATE Student 
-                                      SET FirstName = @firstName,
-                                          LastName = @lastName,
-                                          SlackHandle = @slackHandle,
-                                          CohortId = @cohortId
-                                          WHERE Id = @id
-                                      ";
+                                          UPDATE Student 
+                                          SET FirstName = @firstName,
+                                              LastName = @lastName,
+                                              SlackHandle = @slackHandle,
+                                              CohortId = @cohortId
+                                              WHERE Id = @id
+                                          ";
                         cmd.Parameters.Add(new SqlParameter("@id", id));
                         cmd.Parameters.Add(new SqlParameter("@firstName", student.FirstName));
                         cmd.Parameters.Add(new SqlParameter("@lastName", student.LastName));
@@ -217,6 +191,9 @@ namespace StudentExercisesMVC.Controllers
                     using (SqlCommand cmd = conn.CreateCommand())
                     {
                         cmd.CommandText = @"
+                            DELETE FROM StudentExercise
+                            WHERE StudentId = @id
+
                             DELETE FROM Student
                             WHERE Id = @id
                         ";
@@ -293,6 +270,37 @@ namespace StudentExercisesMVC.Controllers
             }
 
             return student;
+        }
+        private List<Student> GetAllStudents()
+        {
+            var students = new List<Student>();
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"
+                                      SELECT Id, FirstName, LastName, SlackHandle, CohortId
+                                      FROM Student
+                                      ";
+
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        students.Add(new Student()
+                        {
+                            StudentId = reader.GetInt32(reader.GetOrdinal("Id")),
+                            FirstName = reader.GetString(reader.GetOrdinal("FirstName")),
+                            LastName = reader.GetString(reader.GetOrdinal("LastName")),
+                            SlackHandle = reader.GetString(reader.GetOrdinal("SlackHandle")),
+                            CohortId = reader.GetInt32(reader.GetOrdinal("CohortId"))
+                        });
+                    }
+                    reader.Close();
+                }
+            }
+            return students;
         }
     }
 }

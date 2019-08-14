@@ -179,27 +179,40 @@ namespace StudentExercisesMVC.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Delete(int id, Cohort cohort)
         {
-            try
+            var students = GetAllStudents();
+            var instructors = GetAllInstructors();
+
+            Boolean containsStudent = students.Any(stu => stu.CohortId == id);
+            Boolean containsInstructor = instructors.Any(inst => inst.CohortId == id);
+
+            if (containsStudent || containsInstructor)
             {
-                using (SqlConnection conn = Connection)
+                return RedirectToAction(nameof(Index));
+            }
+            else
+            { 
+                try
                 {
-                    conn.Open();
-                    using (SqlCommand cmd = conn.CreateCommand())
+                    using (SqlConnection conn = Connection)
                     {
-                        cmd.CommandText = @"
+                        conn.Open();
+                        using (SqlCommand cmd = conn.CreateCommand())
+                        {
+                            cmd.CommandText = @"
                             DELETE FROM Cohort
                             WHERE Id = @id
                         ";
-                        cmd.Parameters.Add(new SqlParameter("@id", id));
+                            cmd.Parameters.Add(new SqlParameter("@id", id));
 
-                        cmd.ExecuteNonQuery();
+                            cmd.ExecuteNonQuery();
+                        }
                     }
+                    return RedirectToAction(nameof(Index));
                 }
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
+                catch
+                {
+                    return View();
+                }
             }
         }
 
@@ -255,6 +268,71 @@ namespace StudentExercisesMVC.Controllers
                 }
             }
             return cohort;
+        }
+
+        private List<Student> GetAllStudents()
+        {
+            var students = new List<Student>();
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"
+                                      SELECT Id, FirstName, LastName, SlackHandle, CohortId
+                                      FROM Student
+                                      ";
+
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        students.Add(new Student()
+                        {
+                            StudentId = reader.GetInt32(reader.GetOrdinal("Id")),
+                            FirstName = reader.GetString(reader.GetOrdinal("FirstName")),
+                            LastName = reader.GetString(reader.GetOrdinal("LastName")),
+                            SlackHandle = reader.GetString(reader.GetOrdinal("SlackHandle")),
+                            CohortId = reader.GetInt32(reader.GetOrdinal("CohortId"))
+                        });
+                    }
+                    reader.Close();
+                }
+            }
+            return students;
+        }
+
+        private List<Instructor> GetAllInstructors()
+        {
+            var instructors = new List<Instructor>();
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"
+                                      SELECT Id, FirstName, LastName, SlackHandle, CohortId, Specialty
+                                      FROM Instructor
+                                      ";
+
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        instructors.Add(new Instructor()
+                        {
+                            InstructorId = reader.GetInt32(reader.GetOrdinal("Id")),
+                            FirstName = reader.GetString(reader.GetOrdinal("FirstName")),
+                            LastName = reader.GetString(reader.GetOrdinal("LastName")),
+                            SlackHandle = reader.GetString(reader.GetOrdinal("SlackHandle")),
+                            CohortId = reader.GetInt32(reader.GetOrdinal("CohortId")),
+                            Specialty = reader.GetString(reader.GetOrdinal("Specialty"))
+                        });
+                    }
+                    reader.Close();
+                }
+            }
+            return instructors;
         }
     }
 }
