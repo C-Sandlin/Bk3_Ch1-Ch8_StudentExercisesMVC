@@ -16,21 +16,6 @@ namespace StudentExercises.Models.ViewModels
         public List<SelectListItem> Cohorts { get; set; }
         public Student Student { get; set; }
 
-        private readonly string _connectionString;
-
-        //private SqlConnection Connection
-        //{
-        //    get
-        //    {
-        //        return new SqlConnection(_connectionString);
-        //    }
-        //}
-
-        //public StudentCreateViewModel() { }
-
-        //public StudentCreateViewModel(string connectionString)
-        //{
-        //    _connectionString = connectionString;
-        //}
+        //private readonly string _connectionString;
     }
 }
