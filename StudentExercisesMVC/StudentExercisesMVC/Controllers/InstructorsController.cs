@@ -185,9 +185,9 @@ namespace StudentExercisesMVC.Controllers
         }
 
         // POST: Instructor/Delete/5
-        [HttpPost]
+        [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, Instructor instructor)
+        public ActionResult DeleteInstructor(int id)
         {
             try
             {

@@ -179,8 +179,8 @@ namespace StudentExercisesMVC.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Delete(int id, Cohort cohort)
         {
-            var instructors = GetAllInstructors();
             var students = GetAllStudents();
+            var instructors = GetAllInstructors();
 
             Boolean containsStudent = students.Any(stu => stu.CohortId == id);
             Boolean containsInstructor = instructors.Any(inst => inst.CohortId == id);
