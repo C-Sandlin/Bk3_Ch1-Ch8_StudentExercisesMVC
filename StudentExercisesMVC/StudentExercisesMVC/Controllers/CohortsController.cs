@@ -95,7 +95,6 @@ namespace StudentExercisesMVC.Controllers
         // GET: Cohorts/Create
         public ActionResult Create()
         {
-
             return View();
         }
 
@@ -133,31 +132,8 @@ namespace StudentExercisesMVC.Controllers
         // GET: Cohorts/Edit/5
         public ActionResult Edit(int id)
         {
-            //try
-            //{
-            //    using (SqlConnection conn = Connection)
-            //    {
-            //        conn.Open();
-            //        using (SqlCommand cmd = conn.CreateCommand())
-            //        {
-            //            cmd.CommandText = @"
-            //                UPDATE Cohort
-            //                SET [Name] = @name
-            //                WHERE Id = @id
-            //            ";
-            //            cmd.Parameters.Add(new SqlParameter("@id", id));
-            //            cmd.Parameters.Add(new SqlParameter("@name", cohort.Name));
-
-            //           cmd.ExecuteNonQuery();
-            //        }
-            //    }
-            //    return RedirectToAction(nameof(Index));
-            //}
-            //catch (Exception ex)
-            //{ 
-            //    return View();
-            //}
-            return View();
+            var oneCohort = GetOneCohort(id);
+            return View(oneCohort);
         }
 
         // POST: Cohorts/Edit/5
@@ -173,10 +149,10 @@ namespace StudentExercisesMVC.Controllers
                     using (SqlCommand cmd = conn.CreateCommand())
                     {
                         cmd.CommandText = @"
-                            UPDATE Cohort
-                            SET [Name] = @name
-                            WHERE Id = @id
-                        ";
+                                            UPDATE Cohort
+                                            SET [Name] = @name
+                                            WHERE Id = @id
+                                          ";
                         cmd.Parameters.Add(new SqlParameter("@id", id));
                         cmd.Parameters.Add(new SqlParameter("@name", cohort.Name));
 
@@ -194,18 +170,31 @@ namespace StudentExercisesMVC.Controllers
         // GET: Cohorts/Delete/5
         public ActionResult Delete(int id)
         {
-            return View();
+            var oneCohort = GetOneCohort(id);
+            return View(oneCohort);
         }
 
         // POST: Cohorts/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        public ActionResult Delete(int id, Cohort cohort)
         {
             try
             {
-                // TODO: Add delete logic here
+                using (SqlConnection conn = Connection)
+                {
+                    conn.Open();
+                    using (SqlCommand cmd = conn.CreateCommand())
+                    {
+                        cmd.CommandText = @"
+                            DELETE FROM Cohort
+                            WHERE Id = @id
+                        ";
+                        cmd.Parameters.Add(new SqlParameter("@id", id));
 
+                        cmd.ExecuteNonQuery();
+                    }
+                }
                 return RedirectToAction(nameof(Index));
             }
             catch
@@ -239,6 +228,33 @@ namespace StudentExercisesMVC.Controllers
                     return cohorts;
                 }
             }
+        }
+
+        private Cohort GetOneCohort(int id)
+        {
+            Cohort cohort = null;
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = "SELECT Id, Name FROM Cohort WHERE Id = @id";
+
+                    cmd.Parameters.Add(new SqlParameter("@id", id));
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    if (reader.Read())
+                    {
+                        cohort = new Cohort()
+                        {
+                            Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                            Name = reader.GetString(reader.GetOrdinal("Name"))
+                        };
+                    }
+                    reader.Close();
+                }
+            }
+            return cohort;
         }
     }
 }
