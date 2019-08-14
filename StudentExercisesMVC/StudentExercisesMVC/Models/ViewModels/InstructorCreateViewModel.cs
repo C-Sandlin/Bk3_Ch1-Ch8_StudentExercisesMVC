@@ -8,13 +8,12 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 
-
-namespace StudentExercises.Models.ViewModels
+namespace StudentExercisesMVC.Models.ViewModels
 {
-    public class StudentCreateViewModel
+    public class InstructorCreateViewModel
     {
-        public List<SelectListItem> Cohorts { get; set; }
-        public Student Student { get; set; }
+        public Instructor instructor { get; set; }
 
+        public List<SelectListItem> Cohorts { get; set; }
     }
 }
