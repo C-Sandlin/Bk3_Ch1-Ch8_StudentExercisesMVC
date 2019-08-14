@@ -30,32 +30,7 @@ namespace StudentExercisesMVC.Controllers
         // GET: Exercises
         public ActionResult Index()
         {
-            var exercises = new List<Exercise>();
-
-            using (SqlConnection conn = Connection)
-            {
-                conn.Open();
-                using (SqlCommand cmd = conn.CreateCommand())
-                {
-                    cmd.CommandText = @"
-                                      SELECT Id, Name, Language
-                                      FROM Exercise
-                                      ";
-
-                    SqlDataReader reader = cmd.ExecuteReader();
-
-                    while (reader.Read())
-                    {
-                        exercises.Add(new Exercise()
-                        {
-                            Id = reader.GetInt32(reader.GetOrdinal("Id")),
-                            Name = reader.GetString(reader.GetOrdinal("Name")),
-                            Language = reader.GetString(reader.GetOrdinal("Language"))
-                        });
-                    }
-                    reader.Close();
-                }
-            }
+            var exercises = GetAllExercises();
 
             return View(exercises);
         }
@@ -63,34 +38,7 @@ namespace StudentExercisesMVC.Controllers
         // GET: Exercises/Details/5
         public ActionResult Details(int id)
         {
-            Exercise exercise = null;
-
-            using (SqlConnection conn = Connection)
-            {
-                conn.Open();
-                using (SqlCommand cmd = conn.CreateCommand())
-                {
-                    cmd.CommandText = @"
-                                      SELECT Id, Name, Language
-                                      FROM Exercise
-                                      WHERE Id = @id
-                                      ";
-
-                    cmd.Parameters.Add(new SqlParameter("@id", id));
-                    SqlDataReader reader = cmd.ExecuteReader();
-
-                    if (reader.Read())
-                    {
-                        exercise = new Exercise()
-                        {
-                            Id = reader.GetInt32(reader.GetOrdinal("Id")),
-                            Name = reader.GetString(reader.GetOrdinal("Name")),
-                            Language = reader.GetString(reader.GetOrdinal("Language"))
-                        };
-                    }
-                    reader.Close();
-                }
-            }
+            var exercise = GetOneExercise(id);
             return View(exercise);
         }
 
@@ -103,12 +51,26 @@ namespace StudentExercisesMVC.Controllers
         // POST: Exercises/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public ActionResult Create(Exercise exercise)
         {
             try
             {
-                // TODO: Add insert logic here
+                using (SqlConnection conn = Connection)
+                {
+                    conn.Open();
+                    using (SqlCommand cmd = conn.CreateCommand())
+                    {
+                        cmd.CommandText = @"
+                                          INSERT INTO Exercise
+                                          ([Name], Language)
+                                          VALUES (@name, @language)
+                                          ";
 
+                        cmd.Parameters.Add(new SqlParameter("@name", exercise.Name));
+                        cmd.Parameters.Add(new SqlParameter("@language", exercise.Language));
+                        cmd.ExecuteNonQuery();
+                    }
+                }
                 return RedirectToAction(nameof(Index));
             }
             catch
@@ -161,6 +123,70 @@ namespace StudentExercisesMVC.Controllers
             {
                 return View();
             }
+        }
+
+        private Exercise GetOneExercise(int id)
+        {
+            Exercise exercise = null;
+
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"
+                                      SELECT Id, Name, Language
+                                      FROM Exercise
+                                      WHERE Id = @id
+                                      ";
+
+                    cmd.Parameters.Add(new SqlParameter("@id", id));
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    if (reader.Read())
+                    {
+                        exercise = new Exercise()
+                        {
+                            Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                            Name = reader.GetString(reader.GetOrdinal("Name")),
+                            Language = reader.GetString(reader.GetOrdinal("Language"))
+                        };
+                    }
+                    reader.Close();
+                }
+            }
+            return exercise;
+        }
+
+        private List<Exercise> GetAllExercises()
+        {
+            var exercises = new List<Exercise>();
+
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"
+                                      SELECT Id, Name, Language
+                                      FROM Exercise
+                                      ";
+
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        exercises.Add(new Exercise()
+                        {
+                            Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                            Name = reader.GetString(reader.GetOrdinal("Name")),
+                            Language = reader.GetString(reader.GetOrdinal("Language"))
+                        });
+                    }
+                    reader.Close();
+                }
+            }
+            return exercises;
         }
     }
 }
