@@ -33,34 +33,7 @@ namespace StudentExercisesMVC.Controllers
         // GET: Instructor
         public ActionResult Index()
         {
-            var instructors = new List<Instructor>();
-            using (SqlConnection conn = Connection)
-            {
-                conn.Open();
-                using (SqlCommand cmd = conn.CreateCommand())
-                {
-                    cmd.CommandText = @"
-                                      SELECT Id, FirstName, LastName, SlackHandle, CohortId, Specialty
-                                      FROM Instructor
-                                      ";
-
-                    SqlDataReader reader = cmd.ExecuteReader();
-
-                    while (reader.Read())
-                    {
-                        instructors.Add(new Instructor()
-                        {
-                            InstructorId = reader.GetInt32(reader.GetOrdinal("Id")),
-                            FirstName = reader.GetString(reader.GetOrdinal("FirstName")),
-                            LastName = reader.GetString(reader.GetOrdinal("LastName")),
-                            SlackHandle = reader.GetString(reader.GetOrdinal("SlackHandle")),
-                            CohortId = reader.GetInt32(reader.GetOrdinal("CohortId")),
-                            Specialty = reader.GetString(reader.GetOrdinal("Specialty"))
-                        });
-                    }
-                    reader.Close();
-                }
-            }
+            var instructors = GetAllInstructors();
 
             return View(instructors);
         }
@@ -301,6 +274,39 @@ namespace StudentExercisesMVC.Controllers
             }
 
             return instructor;
+        }
+
+        private List<Instructor> GetAllInstructors()
+        {
+            var instructors = new List<Instructor>();
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"
+                                      SELECT Id, FirstName, LastName, SlackHandle, CohortId, Specialty
+                                      FROM Instructor
+                                      ";
+
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        instructors.Add(new Instructor()
+                        {
+                            InstructorId = reader.GetInt32(reader.GetOrdinal("Id")),
+                            FirstName = reader.GetString(reader.GetOrdinal("FirstName")),
+                            LastName = reader.GetString(reader.GetOrdinal("LastName")),
+                            SlackHandle = reader.GetString(reader.GetOrdinal("SlackHandle")),
+                            CohortId = reader.GetInt32(reader.GetOrdinal("CohortId")),
+                            Specialty = reader.GetString(reader.GetOrdinal("Specialty"))
+                        });
+                    }
+                    reader.Close();
+                }
+            }
+            return instructors;
         }
     }
 }
