@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Configuration;
-using StudentExercises.Models.ViewModels;
 using StudentExercisesMVC.Models;
 using StudentExercisesMVC.Models.ViewModels;
 
@@ -197,6 +196,9 @@ namespace StudentExercisesMVC.Controllers
                     using (SqlCommand cmd = conn.CreateCommand())
                     {
                         cmd.CommandText = @"
+                            DELETE FROM StudentExercise
+                            WHERE InstructorId = @id
+
                             DELETE FROM Instructor
                             WHERE Id = @id
                         ";

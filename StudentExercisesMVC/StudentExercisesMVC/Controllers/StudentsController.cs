@@ -7,8 +7,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Configuration;
-using StudentExercises.Models.ViewModels;
 using StudentExercisesMVC.Models;
+using StudentExercisesMVC.Models.ViewModels;
 
 namespace StudentExercisesMVC.Controllers
 {
@@ -112,7 +112,9 @@ namespace StudentExercisesMVC.Controllers
         public ActionResult Edit(int id)
         {
             var oneStudent = GetOneStudent(id);
-            var viewModel = new StudentCreateViewModel();
+            var viewModel = new StudentEditViewModel();
+
+
 
             var cohorts = GetAllCohorts();
 
@@ -302,5 +304,8 @@ namespace StudentExercisesMVC.Controllers
             }
             return students;
         }
+
+        
+        
     }
 }
