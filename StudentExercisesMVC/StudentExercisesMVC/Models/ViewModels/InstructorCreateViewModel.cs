@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Configuration;
-using StudentExercisesMVC.Models;
 using System;
 using System.Collections.Generic;
 using System.Data;
